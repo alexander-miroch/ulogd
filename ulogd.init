@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Startup script for ProFTPD
+#
+# chkconfig: 345 89 17
+# description: ProFTPD is an enhanced FTP server with \
+# processname: ulogd
+#
+# By: Alexander Miroch <miroch.aleksandr@euroset.ru>
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+OPTIONS="--daemon"
+
+if [ -f /etc/sysconfig/ulogd ]; then
+      . /etc/sysconfig/ulogd
+fi
+
+
+PATH="$PATH::/usr/local/ulogd/sbin"
+
+# See how we were called.
+case "$1" in
+	start)
+		echo -n "Starting ulogd: "
+		daemon ulogd $OPTIONS
+		echo
+		touch /var/lock/subsys/ulogd
+		;;
+	stop)
+		echo -n "Shutting down ulogd: "
+		killproc ulogd
+		echo
+		rm -f /var/lock/subsys/ulogd
+		;;
+	status)
+		status ulogd
+		;;
+	restart)
+		$0 stop
+		$0 start
+		;;
+	*)
+		echo -n "Usage: $0 {start|stop|restart|status"
+		exit 1
+esac
+
+if [ $# -gt 1 ]; then
+	shift
+	$0 $*
+fi
+
+exit 0
